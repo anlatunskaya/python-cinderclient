@@ -369,6 +369,19 @@ class HTTPClient(object):
 
         return self._extract_service_catalog(url, resp, body)
 
+    def get_volume_api_version_from_endpoint(self):
+        magic_tuple = urlparse.urlsplit(self.auth_url)
+        scheme, netloc, path, query, frag = magic_tuple
+        port = magic_tuple.port
+        if port is None:
+            port = 80
+
+        new_netloc = netloc.replace(':%d' % port, ':%d' % (35357,))
+        admin_url = urlparse.urlunsplit((scheme, new_netloc,
+                                         path, query, frag))
+
+        return self._fetch_endpoints_from_auth(admin_url)
+
 
 def get_client_class(version):
     version_map = {
